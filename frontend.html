@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Customer Support Triage</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 16px; }
+  textarea { width: 100%; height: 100px; font-size: 14px; padding: 8px; box-sizing: border-box; }
+  button { margin-top: 10px; padding: 8px 20px; cursor: pointer; }
+  pre { background: #f4f4f4; padding: 12px; border-radius: 6px; margin-top: 20px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<h2>Customer Support Triage</h2>
+<p>Enter a support message. The model returns its category, urgency, confidence, and reason.</p>
+
+<textarea id="text" placeholder="e.g. My invoice from last month charged me twice"></textarea>
+<br />
+<button onclick="submitTriage()">Submit</button>
+
+<pre id="result">Result will appear here.</pre>
+
+<script>
+async function submitTriage() {
+  const text = document.getElementById("text").value;
+  const resultEl = document.getElementById("result");
+  resultEl.textContent = "Loading...";
+
+  const res = await fetch("/triage", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: text })
+  });
+
+  const data = await res.json();
+  resultEl.textContent = JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
