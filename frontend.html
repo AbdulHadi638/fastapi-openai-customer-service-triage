@@ -7,34 +7,48 @@
   body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 16px; }
   textarea { width: 100%; height: 100px; font-size: 14px; padding: 8px; box-sizing: border-box; }
   button { margin-top: 10px; padding: 8px 20px; cursor: pointer; }
-  pre { background: #f4f4f4; padding: 12px; border-radius: 6px; margin-top: 20px; white-space: pre-wrap; }
+  #status { margin-top: 20px; font-size: 14px; color: #333; }
+  .error { color: #b00020; }
 </style>
 </head>
 <body>
 
 <h2>Customer Support Triage</h2>
-<p>Enter a support message. The model returns its category, urgency, confidence, and reason.</p>
+<p>Enter your message below and our team will get back to you shortly.</p>
 
 <textarea id="text" placeholder="e.g. My invoice from last month charged me twice"></textarea>
 <br />
 <button onclick="submitTriage()">Submit</button>
 
-<pre id="result">Result will appear here.</pre>
+<p id="status"></p>
 
 <script>
 async function submitTriage() {
   const text = document.getElementById("text").value;
-  const resultEl = document.getElementById("result");
-  resultEl.textContent = "Loading...";
+  const statusEl = document.getElementById("status");
+  statusEl.className = "";
+  statusEl.textContent = "Sending your message...";
 
-  const res = await fetch("/triage", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: text })
-  });
+  try {
+    const res = await fetch("/triage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text })
+    });
 
-  const data = await res.json();
-  resultEl.textContent = JSON.stringify(data, null, 2);
+    if (!res.ok) {
+      statusEl.className = "error";
+      statusEl.textContent = "Something went wrong. Please try again in a moment.";
+      return;
+    }
+
+    statusEl.textContent = "Thanks! We've received your message and will respond soon.";
+    document.getElementById("text").value = "";
+
+  } catch (err) {
+    statusEl.className = "error";
+    statusEl.textContent = "Something went wrong. Please try again in a moment.";
+  }
 }
 </script>
 
